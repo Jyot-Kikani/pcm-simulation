@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCM Simulator (Sine Wave)</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Interactive PCM Simulator (Sine Wave)</h1>
+        <button id="theme-toggle">Toggle Dark Mode</button>
+    </header>
+
+    <main class="container">
+        <!-- Input Signal Section -->
+        <section class="card">
+            <h2>1. Input Signal Generator (Sine Wave)</h2>
+            <div class="controls">
+                <!-- Signal Type Selection Removed -->
+                <input type="hidden" id="signal-type" value="sine"> <!-- Hidden input to maintain structure -->
+
+                <label for="amplitude">Amplitude (A):</label>
+                <input type="range" id="amplitude" min="0.1" max="5" step="0.1" value="1" title="Signal Amplitude">
+                <span id="amplitude-value">1.0</span>
+
+                <label for="frequency">Frequency (f):</label>
+                <input type="range" id="frequency" min="1" max="20" step="1" value="2" title="Signal Frequency in Hz">
+                <span id="frequency-value">2 Hz</span>
+
+                <label for="phase">Phase (φ):</label>
+                <input type="range" id="phase" min="0" max="360" step="1" value="0" title="Signal Phase in Degrees">
+                <span id="phase-value">0°</span>
+
+                <label for="duration">Duration:</label>
+                <input type="range" id="duration" min="0.1" max="2" step="0.1" value="1" title="Signal Duration in Seconds">
+                <span id="duration-value">1.0 s</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="original-signal-chart"></canvas>
+            </div>
+        </section>
+
+        <!-- PCM Controls Section -->
+        <section class="card">
+            <h2>2. PCM Parameters</h2>
+            <div class="controls">
+                 <label for="sampling-rate">Sampling Rate (Fs):</label>
+                 <input type="range" id="sampling-rate" min="1" max="100" step="1" value="20" title="Samples per Second">
+                 <span id="sampling-rate-value">20 Hz</span>
+                 <span id="nyquist-info" class="info">Nyquist Rate: 4 Hz</span>
+                 <span id="aliasing-warning" class="warning" style="display: none;">Warning: Aliasing may occur! (Fs < 2f)</span>
+
+                 <label for="quantization-levels">Quantization Levels (L):</label>
+                 <select id="quantization-levels" title="Number of discrete levels (Power of 2)">
+                     <option value="4">4 (2 bits)</option>
+                     <option value="8">8 (3 bits)</option>
+                     <option value="16" selected>16 (4 bits)</option>
+                     <option value="32">32 (5 bits)</option>
+                     <option value="64">64 (6 bits)</option>
+                     <option value="128">128 (7 bits)</option>
+                     <option value="256">256 (8 bits)</option>
+                 </select>
+                 <span id="bits-info" class="info">Bits per sample: 4</span>
+            </div>
+             <div class="controls action-buttons">
+                <button id="run-simulation">Re-Run Simulation</button> <!-- Changed text slightly -->
+                <button id="reset-simulation">Reset All</button> <!-- Changed text slightly -->
+             </div>
+        </section>
+
+        <!-- PCM Stages Visualization -->
+        <section class="card">
+            <h2>3. PCM Stages Visualization</h2>
+            <div class="pcm-stages">
+                <article>
+                    <h3>Sampling</h3>
+                    <div class="chart-container small">
+                        <canvas id="sampled-signal-chart"></canvas>
+                    </div>
+                </article>
+                <article>
+                    <h3>Quantization</h3>
+                     <div class="chart-container small">
+                        <canvas id="quantized-signal-chart"></canvas>
+                    </div>
+                    <p id="quantization-error-info" class="info">Quantization Error (Approx. MSE): N/A</p>
+                </article>
+                 <article>
+                    <h3>Encoding (Natural Binary)</h3>
+                    <div id="binary-output" class="binary-output-container">
+                        <!-- Header dynamically generated in JS -->
+                        <pre id="binary-data-header"></pre>
+                        <pre id="binary-data">---</pre>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Signal Reconstruction Section -->
+        <section class="card">
+            <h2>4. Signal Reconstruction (Zero-Order Hold)</h2>
+             <div class="chart-container">
+                <canvas id="reconstructed-signal-chart"></canvas>
+            </div>
+             <p id="snr-info" class="info">Estimated SNR: N/A dB</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>PCM Simulator - Basic Implementation</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
