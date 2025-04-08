@@ -652,5 +652,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Setup ---
     setupEventListeners();
+    toggleTheme();
 
 }); // End DOMContentLoaded
