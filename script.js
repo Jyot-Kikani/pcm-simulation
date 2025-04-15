@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
-    // Signal Type Select removed from active use
+    // DOM Elements
     const amplitudeSlider = document.getElementById('amplitude');
     const amplitudeValueSpan = document.getElementById('amplitude-value');
     const frequencySlider = document.getElementById('frequency');
@@ -19,15 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const bitsInfoSpan = document.getElementById('bits-info');
     const quantizationErrorInfoSpan = document.getElementById('quantization-error-info');
 
-    const binaryDataHeaderPre = document.getElementById('binary-data-header'); // For header
-    const binaryDataPre = document.getElementById('binary-data');          // For data rows
+    const binaryDataHeaderPre = document.getElementById('binary-data-header');// For header
+    const binaryDataPre = document.getElementById('binary-data');// For data rows
     const snrInfoSpan = document.getElementById('snr-info');
 
     const runButton = document.getElementById('run-simulation');
     const resetButton = document.getElementById('reset-simulation');
     const themeToggleButton = document.getElementById('theme-toggle');
 
-    // --- Chart Contexts & Instances ---
+    // Chart Contexts & Instances
     const ctxOriginal = document.getElementById('original-signal-chart').getContext('2d');
     const ctxSampled = document.getElementById('sampled-signal-chart').getContext('2d');
     const ctxQuantized = document.getElementById('quantized-signal-chart').getContext('2d');
@@ -35,9 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let originalChart, sampledChart, quantizedChart, reconstructedChart;
 
-    // --- Default Values ---
+    // Default Values
     const defaultSettings = {
-        // signalType: 'sine', // No longer needed as choice removed
         amplitude: 1,
         frequency: 2,
         phase: 0,
@@ -46,11 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
         quantizationLevels: 16,
     };
 
-    // --- State ---
+    // State
     let currentSettings = { ...defaultSettings };
     let simulationData = {}; // To store results like sampled points, quantized values etc.
 
-    // --- Chart Configuration ---
+    // Chart Configuration
     const chartOptions = (title, isDarkMode = false) => ({
         responsive: true,
         maintainAspectRatio: false,
@@ -74,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Initialization ---
+    // Initialization
     function initializeCharts() {
         const isDark = document.body.classList.contains('dark-mode');
         if (originalChart) originalChart.destroy();
@@ -108,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupEventListeners() {
         // Input Signal Controls
-        // signalTypeSelect removed
         amplitudeSlider.addEventListener('input', updateSettings);
         frequencySlider.addEventListener('input', updateSettings);
         phaseSlider.addEventListener('input', updateSettings);
@@ -130,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         runFullSimulation();
     }
 
-    // --- Update Functions ---
+    // Update Functions
     function updateSettings(event) {
         const id = event.target.id;
         let value = event.target.value;
@@ -152,9 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (id === 'quantization-levels') {
             value = parseInt(value);
         }
-        // Explicitly handle signal-type if needed, though it's fixed now
         else if (id === 'signal-type') {
-             value = 'sine'; // Hardcoded
+             value = 'sine';
         }
 
 
@@ -172,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
-        // --- Auto-run Logic ---
+        // Auto-run Logic
         // Update original signal preview instantly for signal parameter changes
         if (id === 'amplitude' || id === 'frequency' || id === 'phase' || id === 'duration') {
             generateAndDisplayOriginalSignal();
@@ -209,9 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
         bitsInfoSpan.textContent = `Bits per sample: ${bits}`;
     }
 
-    // --- Signal Generation ---
+    // Signal Generation
     function generateAnalogSignal() {
-        // Removed signalType dependency, always sine
         const { amplitude: A, frequency: f, phase: phiDeg, duration: T } = currentSettings;
         const phiRad = phiDeg * (Math.PI / 180);
         const numPoints = 500; // Number of points for smooth plotting
@@ -228,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data;
     }
 
-    // --- PCM Stages ---
+    // PCM Stages
     function sampleSignal(analogSignal) {
         const { samplingRate: Fs, duration: T } = currentSettings;
         if (Fs <= 0) { // Avoid division by zero or infinite loop
@@ -263,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
                      yValue = p1.y + slope * (exactTime - p1.x);
                  }
              } else if (analogSignal.length > 0) {
-                 // Edge case: if t is before first point or after last point (shouldn't happen often with +1e-9)
                  yValue = analogSignal[analogSignal.length - 1].y; // Use last known value
              } else {
                  yValue = 0; // No signal data
@@ -373,25 +367,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return reconstructedPoints;
     }
 
-    // --- Analysis ---
-    function calculateSNR() {
-         // Simplified SNR based on quantization bits (common approximation)
-         const L = currentSettings.quantizationLevels;
-         if (L <= 1) { // SNR is not well-defined for 1 level (0 bits)
-             snrInfoSpan.textContent = `Estimated SNR (Quantization): N/A`;
-             simulationData.snr = NaN;
-             return NaN;
-         }
-         const bits = Math.log2(L);
-         // Formula: SNR ≈ 6.02 * n + 1.76 dB (for full-range sine wave)
-         const snr = 6.02 * bits + 1.76;
-         simulationData.snr = snr;
-         snrInfoSpan.textContent = `Estimated SNR (Quantization): ${snr.toFixed(2)} dB`;
-         return snr;
-    }
+    // Analysis
+    // function calculateSNR() {
+    //      // Simplified SNR based on quantization bits (common approximation)
+    //      const L = currentSettings.quantizationLevels;
+    //      if (L <= 1) { // SNR is not well-defined for 1 level (0 bits)
+    //          snrInfoSpan.textContent = `Estimated SNR (Quantization): N/A`;
+    //          simulationData.snr = NaN;
+    //          return NaN;
+    //      }
+    //      const bits = Math.log2(L);
+    //      // Formula: SNR ≈ 6.02 * n + 1.76 dB (for full-range sine wave)
+    //      const snr = 6.02 * bits + 1.76;
+    //      simulationData.snr = snr;
+    //      snrInfoSpan.textContent = `Estimated SNR (Quantization): ${snr.toFixed(2)} dB`;
+    //      return snr;
+    // }
 
 
-    // --- Chart Update Functions ---
+    // Chart Update Functions
     // (updateOriginalChart, updateSampledChart, updateQuantizedChart, updateReconstructedChart remain largely the same as before)
     // Minor adjustments might be needed in axis limits if amplitude changes drastically,
     // but the basic structure is sound. Adding them here for completeness.
@@ -524,11 +518,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- UI Update Functions ---
+    // UI Update Functions
      function updateBinaryOutput(encodedData) {
         if (!encodedData || encodedData.length === 0) {
             binaryDataHeaderPre.textContent = '';
-            binaryDataPre.textContent = '--- No data ---';
+            binaryDataPre.textContent = '--- No data';
             return;
         }
 
@@ -574,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         binaryDataPre.textContent = lines.join('\n');
     }
 
-    // --- Main Simulation Flow ---
+    // Main Simulation Flow
     function generateAndDisplayOriginalSignal() {
          const analogSignal = generateAnalogSignal();
          updateOriginalChart(analogSignal);
@@ -609,12 +603,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateReconstructedChart(analogSignal, reconstructedSignal);
 
         // 6. Analysis
-        calculateSNR();
+        // calculateSNR();
 
         console.log("Simulation complete.");
     }
 
-    // --- Reset Function ---
+    // Reset Function
     function resetSimulation() {
         currentSettings = { ...defaultSettings };
 
@@ -640,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
         runFullSimulation();
     }
 
-     // --- Theme Toggle ---
+     // Theme Toggle
      function toggleTheme() {
         document.body.classList.toggle('dark-mode');
         // Re-initialize charts with the new theme settings
@@ -650,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
      }
 
 
-    // --- Initial Setup ---
+    // Initial Setup
     setupEventListeners();
     toggleTheme();
 
